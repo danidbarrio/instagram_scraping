@@ -131,23 +131,25 @@ for url in data['Link'].tolist():
             try:
                 photo_url = photos[posts_counter].find_element(By.TAG_NAME, 'img').get_attribute('src')
             except Exception as e:
+                photo_url = ''
                 print('ERROR: ' + e)
                 pass
             
             #DOWNLOAD THE THUMBNAIL FROM THE URL
-            folder = os.getcwd() + '/images/'
-            if not os.path.exists(folder):
-                os.mkdir(folder)
-            
-            response = requests.get(photo_url, stream = True)
-            image_path = folder + 'image' + str(image_counter) + '.jpg'
+            if photo_url:
+                folder = os.getcwd() + '/images/'
+                if not os.path.exists(folder):
+                    os.mkdir(folder)
+                
+                response = requests.get(photo_url, stream = True)
+                image_path = folder + 'image' + str(image_counter) + '.jpg'
 
-            if response.status_code == 200:
-                with open(image_path,'wb') as image:
-                    image.write(response.content)
-                    image.close()
-            else:
-                print("Image " + image_path + " Couldn't be retrieved.")
+                if response.status_code == 200:
+                    with open(image_path,'wb') as image:
+                        image.write(response.content)
+                        image.close()
+                else:
+                    print("Image " + image_path + " Couldn't be retrieved.")
             
             # GET URL OF THE POST
             url_post = driver.current_url
