@@ -128,7 +128,11 @@ for url in data['Link'].tolist():
 
             # GET THE THUMBNAIL URL OF THE POST
             photos = driver.find_elements(By.CLASS_NAME, '_aagv')
-            photo_url = photos[posts_counter].find_element(By.TAG_NAME, 'img').get_attribute('src')
+            try:
+                photo_url = photos[posts_counter].find_element(By.TAG_NAME, 'img').get_attribute('src')
+            except Exception as e:
+                print('ERROR: ' + e)
+                pass
             
             #DOWNLOAD THE THUMBNAIL FROM THE URL
             folder = os.getcwd() + '/images/'
