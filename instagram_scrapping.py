@@ -1,7 +1,7 @@
 import time
 import pandas as pd
 import os
-import requestsxkjfnkjf
+import requests
 
 from selenium import webdriver
 from selenium.webdriver.common.by import By
