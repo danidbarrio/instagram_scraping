@@ -101,6 +101,10 @@ for url in data['Link'].tolist():
     # ACCESS TO THE PROFILE
     driver.get(url)
     time.sleep(WAIT_TIME_3)
+
+    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+    while driver.find_element(By.TAG_NAME, 'svg').get_attribute('aria-label') == 'Cargando...':
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
     
     # ACCESS TO THE FIRST POST AND GET ITS POSTING DATE
     driver.find_element(By.CLASS_NAME, '_aagu').click()
