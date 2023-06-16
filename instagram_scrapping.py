@@ -2,7 +2,6 @@ import time
 import pandas as pd
 import os
 import requests
-
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
@@ -10,11 +9,9 @@ from selenium.webdriver.chrome.service import Service
 
 # REQUIRED CONSTS DATA
 WEB = 'https://www.instagram.com'
-
 WAIT_TIME_1 = 1
 WAIT_TIME_3 = 3
 WAIT_TIME_5 = 5
-
 DIR_BASE = os.getcwd()
 
 # SET FUNCTIONS TO GET THE THUMBNAIL FROM THE POST
@@ -39,12 +36,9 @@ file_name = input('Introduce a name for the file to save the data: ')
 
 # CONSTRUCTION OF THE SCRAPPER
 chromedriver_path = '/chromedriver'
-
 options = webdriver.ChromeOptions()
 options.add_experimental_option('excludeSwitches', ['enable-logging'])
-
 service = Service(chromedriver_path)
-
 driver = webdriver.Chrome(service=service, options=options)
 
 # ENTER TO INSTAGRAM WEB
@@ -135,7 +129,6 @@ for url in data['Link'].tolist():
             print(str(len(photos)))
             print(str(posts_counter))
             print('-'*50)
-
             photo_url = photos[posts_counter].find_element(By.TAG_NAME, 'img').get_attribute('src')
             
             #DOWNLOAD THE THUMBNAIL FROM THE URL
@@ -158,7 +151,6 @@ for url in data['Link'].tolist():
             
             # ADD DATA TO ARRAY
             results.append([profile, formated_date, description, url_post, image_path])
-            
             image_counter += 1
         
         # PRESS BUTTON TO GO TO THE NEXT POST
