@@ -6,6 +6,8 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 
 # REQUIRED CONSTS DATA
 WEB = 'https://www.instagram.com'
@@ -40,6 +42,7 @@ options = webdriver.ChromeOptions()
 options.add_experimental_option('excludeSwitches', ['enable-logging'])
 service = Service(chromedriver_path)
 driver = webdriver.Chrome(service=service, options=options)
+wait = WebDriverWait(driver, 10)
 
 # ENTER TO INSTAGRAM WEB
 driver.get(WEB)
@@ -95,11 +98,30 @@ for url in data['Link'].tolist():
     # ACCESS TO THE PROFILE
     driver.get(url)
     time.sleep(WAIT_TIME_3)
-
-    driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-    while driver.find_element(By.TAG_NAME, 'svg').get_attribute('aria-label') == 'Cargando...':
-        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
     
+    # Esperar a que se cargue la página
+    wait.until(EC.presence_of_element_located((By.TAG_NAME, 'article')))
+
+    # Obtener el número de publicaciones en la página actual
+    publicaciones_actuales = driver.find_elements(By.TAG_NAME, 'article')
+
+    # Hacer scroll hacia abajo hasta que no haya más publicaciones
+    while True:
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        try:
+            wait.until(EC.staleness_of(publicaciones_actuales[-1]))
+            publicaciones_actuales = driver.find_elements(By.TAG_NAME, 'article')
+        except:
+            break
+
+    # Llegaste a la primera publicación
+    print("¡Llegaste a la primera publicación!")
+
+    # Hacer algo con las publicaciones (ejemplo: imprimir los enlaces)
+    for publicacion in publicaciones_actuales:
+        enlace = publicacion.find_element(By.TAG_NAME, 'a').get_attribute('href')
+        print(enlace)
+
     # ACCESS TO THE FIRST POST AND GET ITS POSTING DATE
     driver.find_element(By.CLASS_NAME, '_aagu').click()
     time.sleep(WAIT_TIME_1)
