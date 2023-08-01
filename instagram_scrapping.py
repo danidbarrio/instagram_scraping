@@ -8,7 +8,6 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-from webdriver_manager.chrome import ChromeDriverManager
 
 # REQUIRED CONSTS DATA
 WEB = 'https://www.instagram.com'
@@ -38,9 +37,11 @@ while(bad_year):
 file_name = input('Introduce a name for the file to save the data: ')
 
 # CONSTRUCTION OF THE SCRAPPER
+chromedriver_path = '/chromedriver'
 options = webdriver.ChromeOptions()
 options.add_experimental_option('excludeSwitches', ['enable-logging'])
-driver = webdriver.Chrome(Service(ChromeDriverManager().install()))
+service = Service(chromedriver_path)
+driver = webdriver.Chrome(service=service, options=options)
 wait = WebDriverWait(driver, 10)
 
 # ENTER TO INSTAGRAM WEB
