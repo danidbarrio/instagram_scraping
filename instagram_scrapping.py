@@ -98,18 +98,17 @@ for url in data['Link'].tolist():
     # ACCESS TO THE PROFILE
     driver.get(url)
     time.sleep(WAIT_TIME_3)
-    
-    # Esperar a que se cargue la página
-    wait.until(EC.presence_of_element_located((By.TAG_NAME, 'article')))
 
     # Obtener el número de publicaciones en la página actual
-    publicaciones_actuales = driver.find_elements(By.TAG_NAME, 'article')
+    publicaciones_actuales = 0
 
     # Hacer scroll hacia abajo hasta que no haya más publicaciones
     total_posts = driver.find_element(By.CSS_SELECTOR, 'span._ac2a span').text
     print("objetivo: " + total_posts)
-    while str(len(publicaciones_actuales)) < str(total_posts):
-        print(len(publicaciones_actuales))
+    
+    while str(publicaciones_actuales) < str(total_posts):
+        publicaciones_actuales = len(driver.find_elements(By.CLASS_NAME, '_aagv'))
+        print(publicaciones_actuales)
         driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
         time.sleep(WAIT_TIME_3)
         publicaciones_actuales = driver.find_elements(By.TAG_NAME, 'article')
