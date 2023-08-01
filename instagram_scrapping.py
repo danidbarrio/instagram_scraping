@@ -111,7 +111,6 @@ for url in data['Link'].tolist():
         print(publicaciones_actuales)
         driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
         time.sleep(WAIT_TIME_3)
-        publicaciones_actuales = driver.find_elements(By.TAG_NAME, 'article')
 
     # Llegaste a la primera publicación
     print("¡Llegaste a la primera publicación!")
