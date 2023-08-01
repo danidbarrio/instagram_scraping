@@ -106,15 +106,12 @@ for url in data['Link'].tolist():
     publicaciones_actuales = driver.find_elements(By.TAG_NAME, 'article')
 
     # Hacer scroll hacia abajo hasta que no haya más publicaciones
-    while True:
+    total_posts = driver.find_elements(By.CLASS_NAME, '_ac2a')
+    while str(publicaciones_actuales) :
         driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        try:
-            wait.until(EC.staleness_of(publicaciones_actuales[-1]))
-            publicaciones_actuales = driver.find_elements(By.TAG_NAME, 'article')
-        except:
-            break
+        publicaciones_actuales = driver.find_elements(By.TAG_NAME, 'article')
 
-    # Llegaste a la primera publicación
+    """ # Llegaste a la primera publicación
     print("¡Llegaste a la primera publicación!")
 
     # Hacer algo con las publicaciones (ejemplo: imprimir los enlaces)
@@ -125,7 +122,7 @@ for url in data['Link'].tolist():
     # ACCESS TO THE FIRST POST AND GET ITS POSTING DATE
     driver.find_element(By.CLASS_NAME, '_aagu').click()
     time.sleep(WAIT_TIME_1)
-    date = driver.find_element(By.TAG_NAME, 'time').get_attribute('datetime')
+    date = driver.find_element(By.TAG_NAME, 'time').get_attribute('datetime') """
     
     # CHECK PINED POSTS AND GET THE ONES FROM THE YEAR THE USER WANTS
     posts_counter = 0
