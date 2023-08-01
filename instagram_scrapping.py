@@ -8,6 +8,7 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
+from webdriver_manager.chrome import ChromeDriverManager
 
 # REQUIRED CONSTS DATA
 WEB = 'https://www.instagram.com'
@@ -37,11 +38,9 @@ while(bad_year):
 file_name = input('Introduce a name for the file to save the data: ')
 
 # CONSTRUCTION OF THE SCRAPPER
-chromedriver_path = '/chromedriver'
 options = webdriver.ChromeOptions()
 options.add_experimental_option('excludeSwitches', ['enable-logging'])
-service = Service(chromedriver_path)
-driver = webdriver.Chrome(service=service, options=options)
+driver = webdriver.Chrome(Service(ChromeDriverManager().install()))
 wait = WebDriverWait(driver, 10)
 
 # ENTER TO INSTAGRAM WEB
@@ -108,7 +107,7 @@ for url in data['Link'].tolist():
     # Hacer scroll hacia abajo hasta que no haya más publicaciones
     total_posts = driver.find_element_by_css_selector('span._ac2a span')
     print(total_posts)
-    while str(publicaciones_actuales) :
+    while str(publicaciones_actuales) < str(total_posts):
         driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
         publicaciones_actuales = driver.find_elements(By.TAG_NAME, 'article')
 
