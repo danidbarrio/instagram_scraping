@@ -105,7 +105,7 @@ for url in data['Link'].tolist():
     publicaciones_actuales = driver.find_elements(By.TAG_NAME, 'article')
 
     # Hacer scroll hacia abajo hasta que no haya más publicaciones
-    total_posts = driver.find_element_by_css_selector('span._ac2a span')
+    total_posts = driver.find_element(By.CSS_SELECTOR, 'span._ac2a span').text
     print(total_posts)
     while str(publicaciones_actuales) < str(total_posts):
         driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
