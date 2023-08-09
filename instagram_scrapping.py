@@ -100,19 +100,17 @@ for url in data['Link'].tolist():
     time.sleep(WAIT_TIME_3)
 
     # Obtener el número de publicaciones en la página actual
-    publicaciones_actuales = 0
-
-    # Hacer scroll hacia abajo hasta que no haya más publicaciones
     total_posts = int(driver.find_element(By.CSS_SELECTOR, 'span._ac2a span').text)
     print("objetivo: ", total_posts)
-    
+
+    # Hacer scroll hacia abajo hasta que no haya más publicaciones
     """ while str(publicaciones_actuales) < str(total_posts):
         publicaciones_actuales = len(driver.find_elements(By.CLASS_NAME, '_aagv'))
         print(publicaciones_actuales)
         driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
         time.sleep(WAIT_TIME_3) """
         
-    image_count = 0
+    """ image_count = 0
     while image_count < total_posts:
         #scroll to the end
         driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
@@ -126,15 +124,7 @@ for url in data['Link'].tolist():
         # Exit the while loop if number of images > maximum number of images
         if image_count >= total_posts:
             print(f"Found: {image_count} posts, done!")
-            break
-
-    # Llegaste a la primera publicación
-    print("¡Llegaste a la primera publicación!")
-
-    # Hacer algo con las publicaciones (ejemplo: imprimir los enlaces)
-    for publicacion in publicaciones_actuales:
-        enlace = publicacion.find_element(By.TAG_NAME, 'a').get_attribute('href')
-        print(enlace)
+            break """
 
     # ACCESS TO THE FIRST POST AND GET ITS POSTING DATE
     driver.find_element(By.CLASS_NAME, '_aagu').click()
@@ -144,6 +134,30 @@ for url in data['Link'].tolist():
     # CHECK PINED POSTS AND GET THE ONES FROM THE YEAR THE USER WANTS
     posts_counter = 0
     while(date[0:4] >= year or posts_counter < 3):
+        # GET ALL THE TUMBNAILS FROM THE PROFILE
+        image_count = 0
+        first_time  = True
+        while image_count < total_posts:
+            #scroll to the end
+            driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            time.sleep(WAIT_TIME_1)
+            
+            # Fetch src attributes from images
+            photos = driver.find_elements(By.TAG_NAME('img'))
+            
+            if first_time:
+                photos = photos[1:-2] #slicing-off first photo, IG logo and Profile picture
+            else:    
+                photos = photos[:-2] #slicing-off IG logo and Profile picture
+            firs_time = False
+            
+            image_count = len(photos)
+            
+            # Exit the while loop if number of images > maximum number of images
+            if image_count >= total_posts:
+                print(f"Found: {image_count} images, done!")
+                break
+    
         # CHECK IF THE POST IS FROM THE YEAR THE USER WANTS
         if(date[0:4] == year):
             time.sleep(WAIT_TIME_1)
@@ -162,10 +176,12 @@ for url in data['Link'].tolist():
 
             # GET THE THUMBNAIL URL OF THE POST
             photos = driver.find_elements(By.CLASS_NAME, '_aagv')
-            print(str(len(photos)))
-            print(str(posts_counter))
-            print('-'*50)
-            photo_url = photos[posts_counter].find_element(By.TAG_NAME, 'img').get_attribute('src')
+            
+            print(str(len(photos))) #Eliminar!!!
+            print(str(posts_counter)) #Eliminar!!!
+            print('-'*50) #Eliminar!!!
+            
+            photo_url = photos[posts_counter].get_attribute('src')
             
             #DOWNLOAD THE THUMBNAIL FROM THE URL
             folder = os.getcwd() + '/images/'
