@@ -103,7 +103,7 @@ for url in data['Link'].tolist():
     publicaciones_actuales = 0
 
     # Hacer scroll hacia abajo hasta que no haya más publicaciones
-    total_posts = driver.find_element(By.CSS_SELECTOR, 'span._ac2a span').text
+    total_posts = int(driver.find_element(By.CSS_SELECTOR, 'span._ac2a span').text)
     print("objetivo: " + total_posts)
     
     """ while str(publicaciones_actuales) < str(total_posts):
