@@ -133,6 +133,7 @@ for url in data['Link'].tolist():
     
     # CHECK PINED POSTS AND GET THE ONES FROM THE YEAR THE USER WANTS
     posts_counter = 0
+    photos = []
     while(date[0:4] >= year or posts_counter < 3):
         # GET ALL THE TUMBNAILS FROM THE PROFILE
         image_count = 0
@@ -143,7 +144,7 @@ for url in data['Link'].tolist():
             time.sleep(WAIT_TIME_1)
             
             # Fetch src attributes from images
-            photos = driver.find_elements(By.TAG_NAME('img'))
+            photos = driver.find_elements(By.TAG_NAME, 'img')
             
             if first_time:
                 photos = photos[1:-2] #slicing-off first photo, IG logo and Profile picture
