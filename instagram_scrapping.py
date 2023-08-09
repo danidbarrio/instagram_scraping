@@ -158,6 +158,7 @@ for url in data['Link'].tolist():
     
     # CHECK PINED POSTS AND GET THE ONES FROM THE YEAR THE USER WANTS
     posts_counter = 0
+    photos = []
     while(date[0:4] >= year or posts_counter < 3):
     
         # CHECK IF THE POST IS FROM THE YEAR THE USER WANTS
