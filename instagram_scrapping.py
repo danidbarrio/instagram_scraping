@@ -131,12 +131,16 @@ for url in data['Link'].tolist():
     image_count = 0
     first_time  = True
     while image_count < total_posts:
+        print('imagenes contadas: ', image_count)
+        print('imagenes totales: ', total_posts)
+        print('*' *50)
+
         #scroll to the end
         driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
         time.sleep(WAIT_TIME_1)
         
         # Fetch src attributes from images
-        photos = driver.find_elements(By.TAG_NAME, 'img')
+        photos += driver.find_elements(By.TAG_NAME, 'img')
         
         if first_time:
             photos = photos[1:-2] #slicing-off first photo, IG logo and Profile picture
