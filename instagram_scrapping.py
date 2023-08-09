@@ -101,7 +101,7 @@ for url in data['Link'].tolist():
 
     # Obtener el número de publicaciones en la página actual
     total_posts = int(driver.find_element(By.CSS_SELECTOR, 'span._ac2a span').text)
-    print("objetivo: ", total_posts)
+    print("Total Posts: ", total_posts)
 
     # Hacer scroll hacia abajo hasta que no haya más publicaciones
     """ while str(publicaciones_actuales) < str(total_posts):
@@ -125,6 +125,31 @@ for url in data['Link'].tolist():
         if image_count >= total_posts:
             print(f"Found: {image_count} posts, done!")
             break """
+            
+    # GET ALL THE TUMBNAILS FROM THE PROFILE
+    photos = []
+    image_count = 0
+    first_time  = True
+    while image_count < total_posts:
+        #scroll to the end
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(WAIT_TIME_1)
+        
+        # Fetch src attributes from images
+        photos = driver.find_elements(By.TAG_NAME('img'))
+        
+        if first_time:
+            photos = photos[1:-2] #slicing-off first photo, IG logo and Profile picture
+        else:    
+            photos = photos[:-2] #slicing-off IG logo and Profile picture
+        firs_time = False
+        
+        image_count = len(photos)
+        
+        # Exit the while loop if number of images > maximum number of images
+        if image_count >= total_posts:
+            print(f"Found: {image_count} images, done!")
+            break
 
     # ACCESS TO THE FIRST POST AND GET ITS POSTING DATE
     driver.find_element(By.CLASS_NAME, '_aagu').click()
@@ -134,29 +159,6 @@ for url in data['Link'].tolist():
     # CHECK PINED POSTS AND GET THE ONES FROM THE YEAR THE USER WANTS
     posts_counter = 0
     while(date[0:4] >= year or posts_counter < 3):
-        # GET ALL THE TUMBNAILS FROM THE PROFILE
-        image_count = 0
-        first_time  = True
-        while image_count < total_posts:
-            #scroll to the end
-            driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-            time.sleep(WAIT_TIME_1)
-            
-            # Fetch src attributes from images
-            photos = driver.find_elements(By.TAG_NAME('img'))
-            
-            if first_time:
-                photos = photos[1:-2] #slicing-off first photo, IG logo and Profile picture
-            else:    
-                photos = photos[:-2] #slicing-off IG logo and Profile picture
-            firs_time = False
-            
-            image_count = len(photos)
-            
-            # Exit the while loop if number of images > maximum number of images
-            if image_count >= total_posts:
-                print(f"Found: {image_count} images, done!")
-                break
     
         # CHECK IF THE POST IS FROM THE YEAR THE USER WANTS
         if(date[0:4] == year):
