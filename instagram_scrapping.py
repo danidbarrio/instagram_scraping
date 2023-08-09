@@ -104,7 +104,7 @@ for url in data['Link'].tolist():
 
     # Hacer scroll hacia abajo hasta que no haya más publicaciones
     total_posts = int(driver.find_element(By.CSS_SELECTOR, 'span._ac2a span').text)
-    print("objetivo: " + total_posts)
+    print("objetivo: ", total_posts)
     
     """ while str(publicaciones_actuales) < str(total_posts):
         publicaciones_actuales = len(driver.find_elements(By.CLASS_NAME, '_aagv'))
@@ -120,7 +120,7 @@ for url in data['Link'].tolist():
         time.sleep(WAIT_TIME_5)
         
         # Fetch src attributes from images
-        images = driver.find_elements_by_tag_name('img')
+        images = driver.find_elements(By.TAG_NAME, 'img')
         images = [image.get_attribute('src') for image in images]
         
         if first_time:
