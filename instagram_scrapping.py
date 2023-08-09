@@ -106,11 +106,35 @@ for url in data['Link'].tolist():
     total_posts = driver.find_element(By.CSS_SELECTOR, 'span._ac2a span').text
     print("objetivo: " + total_posts)
     
-    while str(publicaciones_actuales) < str(total_posts):
+    """ while str(publicaciones_actuales) < str(total_posts):
         publicaciones_actuales = len(driver.find_elements(By.CLASS_NAME, '_aagv'))
         print(publicaciones_actuales)
         driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        time.sleep(WAIT_TIME_3)
+        time.sleep(WAIT_TIME_3) """
+        
+    image_count = 0
+    first_time  = True
+    while image_count < total_posts:
+        #scroll to the end
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+        time.sleep(WAIT_TIME_5)
+        
+        # Fetch src attributes from images
+        images = driver.find_elements_by_tag_name('img')
+        images = [image.get_attribute('src') for image in images]
+        
+        if first_time:
+            images = images[1:-2] #slicing-off first photo, IG logo and Profile picture
+        else:    
+            images = images[:-2] #slicing-off IG logo and Profile picture
+        firs_time = False
+        
+        image_count = len(images)
+        
+        # Exit the while loop if number of images > maximum number of images
+        if image_count >= total_posts:
+            print(f"Found: {image_count} posts, done!")
+            break
 
     # Llegaste a la primera publicación
     print("¡Llegaste a la primera publicación!")
