@@ -2,12 +2,12 @@ import time
 import pandas as pd
 import os
 import requests
+import getpass
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
 
 # REQUIRED CONSTS DATA
 WEB = 'https://www.instagram.com'
@@ -53,7 +53,7 @@ driver.find_element(By.XPATH, '//button[contains(text(), "Permitir")]').click()
 is_error = True
 while(is_error):
     user = input('Introduce your Instagram user: ')
-    password = input('Introduce your Instagram password: ')
+    password = getpass.getpass('Introduce your Instagram password: ')
     usr = driver.find_element(By.NAME, "username")
     usr.send_keys(user)
     pasw = driver.find_element(By.NAME, "password")
@@ -102,29 +102,6 @@ for url in data['Link'].tolist():
     # Obtener el número de publicaciones en la página actual
     total_posts = int(driver.find_element(By.CSS_SELECTOR, 'span._ac2a span').text)
     print("Total Posts: ", total_posts)
-
-    # Hacer scroll hacia abajo hasta que no haya más publicaciones
-    """ while str(publicaciones_actuales) < str(total_posts):
-        publicaciones_actuales = len(driver.find_elements(By.CLASS_NAME, '_aagv'))
-        print(publicaciones_actuales)
-        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        time.sleep(WAIT_TIME_3) """
-        
-    """ image_count = 0
-    while image_count < total_posts:
-        #scroll to the end
-        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        time.sleep(WAIT_TIME_1)
-        
-        # Fetch src attributes from images
-        photos = driver.find_elements(By.CLASS_NAME, '_aagv')
-        
-        image_count = len(photos)
-        
-        # Exit the while loop if number of images > maximum number of images
-        if image_count >= total_posts:
-            print(f"Found: {image_count} posts, done!")
-            break """
             
     # GET ALL THE TUMBNAILS FROM THE PROFILE SCROLLING TO THE END OF THE PAGE
     photos = []
@@ -146,7 +123,7 @@ for url in data['Link'].tolist():
             photos = photos[1:-2] #slicing-off first photo, IG logo and Profile picture
         else:    
             photos = photos[:-2] #slicing-off IG logo and Profile picture
-        firs_time = False
+        first_time = False
         
         image_count = len(photos)
         
@@ -162,7 +139,6 @@ for url in data['Link'].tolist():
     
     # CHECK PINED POSTS AND GET THE ONES FROM THE YEAR THE USER WANTS
     posts_counter = 0
-    #photos = []
     while(date[0:4] >= year or posts_counter < 3):
     
         # CHECK IF THE POST IS FROM THE YEAR THE USER WANTS
@@ -180,9 +156,6 @@ for url in data['Link'].tolist():
             except:
                 description = ''
                 pass
-
-            # GET THE THUMBNAIL URL OF THE POST
-            #photos = driver.find_elements(By.CLASS_NAME, '_aagv')
             
             print(str(len(photos))) #Eliminar!!!
             print(str(posts_counter)) #Eliminar!!!
