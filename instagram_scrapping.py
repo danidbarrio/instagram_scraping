@@ -129,6 +129,7 @@ for url in data['Link'].tolist():
         
         # Exit the while loop if number of images > maximum number of images
         if image_count >= total_posts:
+            driver.execute_script("window.scrollTo(0, 0);")
             print(f"Found: {image_count} images, done!")
             break
 
