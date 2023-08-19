@@ -126,7 +126,7 @@ for url in data['Link'].tolist():
             print(f"Found: {image_count} posts, done!")
             break """
             
-    # GET ALL THE TUMBNAILS FROM THE PROFILE
+    # GET ALL THE TUMBNAILS FROM THE PROFILE SCROLLING TO THE END OF THE PAGE
     photos = []
     image_count = 0
     first_time  = True
