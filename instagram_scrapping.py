@@ -117,7 +117,7 @@ for url in data['Link'].tolist():
         found_photos = driver.find_elements(By.TAG_NAME, 'img')
         for photo in found_photos:
             if photo not in photos:
-                photos.append(photo)
+                photos.append(photo.get_attribute('src'))
         
         if first_time:
             photos = photos[1:-2] #slicing-off first photo, IG logo and Profile picture
@@ -162,7 +162,7 @@ for url in data['Link'].tolist():
             print(str(posts_counter)) #Eliminar!!!
             print('-'*50) #Eliminar!!!
             
-            photo_url = photos[posts_counter].get_attribute('src')
+            photo_url = photos[posts_counter]
             
             #DOWNLOAD THE THUMBNAIL FROM THE URL
             folder = os.getcwd() + '/images/'
