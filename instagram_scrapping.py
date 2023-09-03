@@ -16,11 +16,12 @@ WAIT_TIME_3 = 3
 WAIT_TIME_5 = 5
 DIR_BASE = os.getcwd()
 
-# SET FUNCTIONS TO GET THE THUMBNAIL FROM THE POST
+# DOWNLOAD THE THUMBNAIL FROM THE POST
 def image_html_formatter(path):
     tag_photo = '<img src="' + path + '" width=500px />'
     return tag_photo
 
+# FORMAT TO HTML TAG THE DOWNLOADED THUMBNAIL FROM THE POST
 def url_html_formatter(path):
     tag_photo = '<a href="'+ path +'" target="_blank">ENLACE</a>'
     return tag_photo
@@ -91,6 +92,7 @@ except:
 data = pd.read_excel('instagram.xlsx')
 results = []
 image_counter = 1
+profile_counter = 0
 for url in data['Link'].tolist():
     # GET PROFILE OF THE POSTS BY LAST CHARACTERS OF THE URL
     profile = url[26:-1]
@@ -104,42 +106,34 @@ for url in data['Link'].tolist():
     print("Total Posts: ", total_posts)
             
     # GET ALL THE TUMBNAILS FROM THE PROFILE SCROLLING TO THE END OF THE PAGE
-    photos = []
-    image_count = 0
+    images = []
     first_time  = True
-    while image_count < total_posts:
-        found_photos = []
-        #scroll to the end
+    while len(images) < total_posts:
+        # SCROLL TO THE BOTTOM
         driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
         time.sleep(WAIT_TIME_1)
         
-        # Fetch src attributes from images
-        found_photos = driver.find_elements(By.TAG_NAME, 'img')
-        for photo in found_photos:
-            if photo not in photos:
-                photos.append(photo.get_attribute('src'))
-        
+        # SELECT THUMBNAILS
+        found_images = driver.find_elements(By.CSS_SELECTOR, 'div._aagu div._aagv img')
+        for image in found_images:
+            if image.get_attribute('src') not in found_images:
+                print(image.get_attribute('src'))
+                print('*-'*50)
+                images.append(image.get_attribute('src'))
         if first_time:
-            photos = photos[1:-2] #slicing-off first photo, IG logo and Profile picture
-        else:    
-            photos = photos[:-2] #slicing-off IG logo and Profile picture
-        first_time = False
-        
-        image_count = len(photos)
-        
-        # Exit the while loop if number of images > maximum number of images
-        if image_count >= total_posts:
-            driver.execute_script("window.scrollTo(0, 0);")
-            print(f"Found: {image_count} images, done!")
-            break
+            images = images[:-2] # Slicing-off IG logo and profile picture
+            first_time = False
+    
+    driver.execute_script("window.scrollTo(0, 0);")
+    print('Number of scraped images: ', len(images))
 
     # ACCESS TO THE FIRST POST AND GET ITS POSTING DATE
+    posts_counter = 0
     driver.find_element(By.CLASS_NAME, '_aagu').click()
     time.sleep(WAIT_TIME_1)
     date = driver.find_element(By.TAG_NAME, 'time').get_attribute('datetime')
     
     # CHECK PINED POSTS AND GET THE ONES FROM THE YEAR THE USER WANTS
-    posts_counter = 0
     while(date[0:4] >= year or posts_counter < 3):
     
         # CHECK IF THE POST IS FROM THE YEAR THE USER WANTS
@@ -158,11 +152,12 @@ for url in data['Link'].tolist():
                 description = ''
                 pass
             
-            print(str(len(photos))) #Eliminar!!!
+            print(str(len(images))) #Eliminar!!!
             print(str(posts_counter)) #Eliminar!!!
             print('-'*50) #Eliminar!!!
             
-            photo_url = photos[posts_counter]
+            photo_url = images[posts_counter]
+            #photo_url = 'AUN NADA'
             
             #DOWNLOAD THE THUMBNAIL FROM THE URL
             folder = os.getcwd() + '/images/'
@@ -198,6 +193,9 @@ for url in data['Link'].tolist():
         # GET DATE OF THE NEXT POST TO CHECK IF THE PROCCESS CONTINUES
         date = driver.find_element(By.TAG_NAME, 'time').get_attribute('datetime')
         posts_counter += 1
+    """ profile_counter += 1
+    if profile_counter == 2:
+        break """
 
 # QUIT DRIVER
 driver.quit()
