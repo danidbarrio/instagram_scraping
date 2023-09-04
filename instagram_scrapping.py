@@ -101,9 +101,9 @@ for url in data['Link'].tolist():
     driver.get(url)
     time.sleep(WAIT_TIME_3)
 
-    # Obtener el número de publicaciones en la página actual
+    # GET THE NUMBER OF TOTAL POSTS FROM THE PROFILE
     total_posts = int(driver.find_element(By.CSS_SELECTOR, 'span._ac2a span').text)
-    print("Total Posts: ", total_posts)
+    print("Total Posts from ", profile, ": ", total_posts)
             
     # GET ALL THE TUMBNAILS FROM THE PROFILE SCROLLING TO THE END OF THE PAGE
     images = []
@@ -117,15 +117,15 @@ for url in data['Link'].tolist():
         found_images = driver.find_elements(By.CSS_SELECTOR, 'div._aagu div._aagv img')
         for image in found_images:
             if image.get_attribute('src') not in found_images:
-                print(image.get_attribute('src'))
-                print('*-'*50)
                 images.append(image.get_attribute('src'))
         if first_time:
             images = images[:-2] # Slicing-off IG logo and profile picture
             first_time = False
     
+    # SCROLL BACK TO THE TOP OF THE PAGE
     driver.execute_script("window.scrollTo(0, 0);")
-    print('Number of scraped images: ', len(images))
+    time.sleep(WAIT_TIME_1)
+    #print('Number of scraped images: ', len(images)) #Eliminar!!!
 
     # ACCESS TO THE FIRST POST AND GET ITS POSTING DATE
     posts_counter = 0
@@ -196,6 +196,10 @@ for url in data['Link'].tolist():
     """ profile_counter += 1
     if profile_counter == 2:
         break """
+    print(posts_counter, 'posts found from ', profile)
+
+#SHOW TOTAL OF SCRAPPED PROFILES
+print(profile_counter, 'profiles scrapped.')
 
 # QUIT DRIVER
 driver.quit()
