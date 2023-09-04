@@ -49,6 +49,7 @@ wait = WebDriverWait(driver, 10)
 driver.get(WEB)
 time.sleep(WAIT_TIME_3)
 driver.find_element(By.XPATH, '//button[contains(text(), "Permitir")]').click()
+time.sleep(WAIT_TIME_3)
 
 # LOGIN WITH USER AND PASSWORD
 is_error = True
@@ -103,7 +104,7 @@ for url in data['Link'].tolist():
 
     # GET THE NUMBER OF TOTAL POSTS FROM THE PROFILE
     total_posts = int(driver.find_element(By.CSS_SELECTOR, 'span._ac2a span').text)
-    print("Total Posts from ", profile, ": ", total_posts)
+    print("Total posts from " + profile + ":", total_posts)
             
     # GET ALL THE TUMBNAILS FROM THE PROFILE SCROLLING TO THE END OF THE PAGE
     images = []
@@ -125,10 +126,10 @@ for url in data['Link'].tolist():
     # SCROLL BACK TO THE TOP OF THE PAGE
     driver.execute_script("window.scrollTo(0, 0);")
     time.sleep(WAIT_TIME_1)
-    #print('Number of scraped images: ', len(images)) #Eliminar!!!
 
     # ACCESS TO THE FIRST POST AND GET ITS POSTING DATE
     posts_counter = 0
+    scrapped_posts = 0
     driver.find_element(By.CLASS_NAME, '_aagu').click()
     time.sleep(WAIT_TIME_1)
     date = driver.find_element(By.TAG_NAME, 'time').get_attribute('datetime')
@@ -138,6 +139,7 @@ for url in data['Link'].tolist():
     
         # CHECK IF THE POST IS FROM THE YEAR THE USER WANTS
         if(date[0:4] == year):
+            scrapped_posts += 1
             time.sleep(WAIT_TIME_1)
             
             # GET FORMATED DATE OF THE POST
@@ -151,10 +153,6 @@ for url in data['Link'].tolist():
             except:
                 description = ''
                 pass
-            
-            print(str(len(images))) #Eliminar!!!
-            print(str(posts_counter)) #Eliminar!!!
-            print('-'*50) #Eliminar!!!
             
             photo_url = images[posts_counter]
             #photo_url = 'AUN NADA'
@@ -184,19 +182,20 @@ for url in data['Link'].tolist():
         # PRESS BUTTON TO GO TO THE NEXT POST
         buttons = driver.find_elements(By.TAG_NAME, 'svg')
         try:
-            for b in buttons:
-                if b.get_attribute('aria-label') == 'Siguiente':
-                    b.click()
+            for button in buttons:
+                if button.get_attribute('aria-label') == 'Siguiente':
+                    button.click()
         except:
             pass
         
-        # GET DATE OF THE NEXT POST TO CHECK IF THE PROCCESS CONTINUES
-        date = driver.find_element(By.TAG_NAME, 'time').get_attribute('datetime')
+        # CHECK IF ALL THE POSTS ARE SCRAPPED
         posts_counter += 1
-    """ profile_counter += 1
-    if profile_counter == 2:
-        break """
-    print(posts_counter, 'posts found from ', profile)
+        if posts_counter == total_posts:
+            break
+        else:
+            # GET DATE OF THE NEXT POST TO CHECK IF THE PROCCESS CONTINUES
+            date = driver.find_element(By.TAG_NAME, 'time').get_attribute('datetime')
+    print(scrapped_posts, 'posts scrapped from ' + profile)
 
 #SHOW TOTAL OF SCRAPPED PROFILES
 print(profile_counter, 'profiles scrapped.')
