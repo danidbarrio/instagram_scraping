@@ -155,7 +155,6 @@ for url in data['Link'].tolist():
                 pass
             
             photo_url = images[posts_counter]
-            #photo_url = 'AUN NADA'
             
             #DOWNLOAD THE THUMBNAIL FROM THE URL
             folder = os.getcwd() + '/images/'
