@@ -15,6 +15,8 @@ WAIT_TIME_1 = 1
 WAIT_TIME_3 = 3
 WAIT_TIME_5 = 5
 DIR_BASE = os.getcwd()
+DOWNLOAD_FOLDER = DIR_BASE + '/images/downloaded/'
+SENSITIVE_CONTENT_IMAGE = "images/sensitive_content.png"
 
 # DOWNLOAD THE THUMBNAIL FROM THE POST
 def image_html_formatter(path):
@@ -103,9 +105,6 @@ for url in data['Link'].tolist():
     time.sleep(WAIT_TIME_3)
     
     try:
-        if driver.find_element(By.XPATH, '//span[contains(text(), "Esta página no está disponible.")]'):
-            print(profile + " doesn't exists.")
-    except:
         profile_counter += 1
         # GET THE NUMBER OF TOTAL POSTS FROM THE PROFILE
         total_posts = int(driver.find_element(By.CSS_SELECTOR, 'span._ac2a span').text)
@@ -127,6 +126,28 @@ for url in data['Link'].tolist():
             if first_time:
                 images = images[:-2] # Slicing-off IG logo and profile picture
                 first_time = False
+            print(len(images))
+        print(images)
+        
+        """ while len(images) < total_posts:
+            # SCROLL TO THE BOTTOM
+            driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
+            time.sleep(WAIT_TIME_1)
+            
+            # SELECT THUMBNAILS
+            found_image_tags = driver.find_elements(By.CSS_SELECTOR, 'div._aabd')
+            for image_tag in found_image_tags:
+                if image_tag.find_element(By.CSS_SELECTOR, 'a div._aagu div._aagv img'):
+                    image = image_tag.find_element(By.CSS_SELECTOR, 'a div._aagu div._aagv img')
+                    if image.get_attribute('src') not in images:
+                        images.append(image.get_attribute('src'))
+                    if first_time:
+                        images = images[:-2] # Slicing-off IG logo and profile picture
+                        first_time = False
+                else:
+                    images.append(SENSITIVE_CONTENT_IMAGE)
+            print(len(images))
+        print(images) """
         
         # SCROLL BACK TO THE TOP OF THE PAGE
         driver.execute_script("window.scrollTo(0, 0);")
@@ -141,8 +162,7 @@ for url in data['Link'].tolist():
         
         # CHECK PINED POSTS AND GET THE ONES FROM THE YEAR THE USER WANTS
         while(date[0:4] >= year or posts_counter < 3):
-            print(posts_counter + 1)
-        
+
             # CHECK IF THE POST IS FROM THE YEAR THE USER WANTS
             if(date[0:4] == year):
                 scrapped_posts += 1
@@ -163,19 +183,21 @@ for url in data['Link'].tolist():
                 photo_url = images[posts_counter]
                 
                 #DOWNLOAD THE THUMBNAIL FROM THE URL
-                folder = os.getcwd() + '/images/'
-                if not os.path.exists(folder):
-                    os.mkdir(folder)
+                if not os.path.exists(DOWNLOAD_FOLDER):
+                    os.mkdir(DOWNLOAD_FOLDER)
                 
-                response = requests.get(photo_url, stream = True)
-                image_path = folder + 'image' + str(image_counter) + '.jpg'
+                if "http" in photo_url:
+                    response = requests.get(photo_url, stream = True)
+                    image_path = DOWNLOAD_FOLDER + 'image' + str(image_counter) + '.jpg'
 
-                if response.status_code == 200:
-                    with open(image_path,'wb') as image:
-                        image.write(response.content)
-                        image.close()
+                    if response.status_code == 200:
+                        with open(image_path,'wb') as image:
+                            image.write(response.content)
+                            image.close()
+                    else:
+                        print("Image " + image_path + " couldn't be retrieved.")
                 else:
-                    print("Image " + image_path + " couldn't be retrieved.")
+                    image_path = photo_url
                 
                 # GET URL OF THE POST
                 url_post = driver.current_url
@@ -202,6 +224,8 @@ for url in data['Link'].tolist():
                 date = driver.find_element(By.TAG_NAME, 'time').get_attribute('datetime')
 
         print(scrapped_posts, 'posts scrapped from ' + profile)
+    except:
+        print(profile + " doesn't exists.")
 
 #SHOW TOTAL OF SCRAPPED PROFILES
 print(profile_counter, 'profiles scrapped.')
