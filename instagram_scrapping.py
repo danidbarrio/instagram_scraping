@@ -67,16 +67,14 @@ while(is_error):
     # CHECK IF LOG IN WENT WRONG TO REFRESH AND RETRY
     time.sleep(WAIT_TIME_1)
     try:
-        error_mesage = driver.find_element(By.ID, 'slfErrorAlert')
-    except:
-        error_mesage = ''
-        pass
-    
-    if(error_mesage != ''):
+        driver.find_element(By.CSS_SELECTOR, 'div._ab2z')
         print('ERROR - Wrong credentials. Try again.')
         driver.refresh()
-    else:
+        time.sleep(WAIT_TIME_1)
+    except:
+        print("BIEN") #ELIMINAR
         is_error = False
+        pass
 
 # DENY SAVE DATA AND PUSH NOTIFICATIONS
 time.sleep(WAIT_TIME_5)
@@ -113,7 +111,7 @@ for url in data['Link'].tolist():
         # GET ALL THE TUMBNAILS FROM THE PROFILE SCROLLING TO THE END OF THE PAGE
         images = []
         first_time  = True
-        while len(images) < total_posts:
+        """ while len(images) < total_posts:
             # SCROLL TO THE BOTTOM
             driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
             time.sleep(WAIT_TIME_1)
@@ -127,9 +125,9 @@ for url in data['Link'].tolist():
                 images = images[:-2] # Slicing-off IG logo and profile picture
                 first_time = False
             print(len(images)) #ELIMINAR
-        print(images) #ELIMINAR
+        print(images) #ELIMINAR """
         
-        """ while len(images) < total_posts:
+        while len(images) < total_posts:
             # SCROLL TO THE BOTTOM
             driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
             time.sleep(WAIT_TIME_1)
@@ -140,14 +138,15 @@ for url in data['Link'].tolist():
                 if image_tag.find_element(By.CSS_SELECTOR, 'a div._aagu div._aagv img'):
                     image = image_tag.find_element(By.CSS_SELECTOR, 'a div._aagu div._aagv img')
                     if image.get_attribute('src') not in images:
+                        image.click()
                         images.append(image.get_attribute('src'))
                     if first_time:
                         images = images[:-2] # Slicing-off IG logo and profile picture
                         first_time = False
                 else:
                     images.append(SENSITIVE_CONTENT_IMAGE)
-            print(len(images))
-        print(images) """
+            print(len(images)) #ELIMINAR
+        print(images) #ELIMINAR
         
         # SCROLL BACK TO THE TOP OF THE PAGE
         driver.execute_script("window.scrollTo(0, 0);")

@@ -54,16 +54,14 @@ def instagram_login(driver:webdriver.Chrome):
         # CHECK IF LOG IN WENT WRONG TO REFRESH AND RETRY
         time.sleep(WAIT_TIME_1)
         try:
-            error_mesage = driver.find_element(By.ID, 'slfErrorAlert')
-        except:
-            error_mesage = ''
-            pass
-        
-        if(error_mesage != ''):
+            driver.find_element(By.CSS_SELECTOR, 'div._ab2z')
             print('ERROR - Wrong credentials. Try again.')
             driver.refresh()
-        else:
+            time.sleep(WAIT_TIME_1)
+        except:
+            print("BIEN") #ELIMINAR
             is_error = False
+            pass
 
 # DENY SAVE DATA AND PUSH NOTIFICATIONS
 def deny_save_data_push_notifications(driver:webdriver.Chrome):
