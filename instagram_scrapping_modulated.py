@@ -18,7 +18,7 @@ DOWNLOAD_FOLDER = DIR_BASE + '/images/downloaded/'
 SENSITIVE_CONTENT_IMAGE = "images/sensitive_content.png"
 
 # REQUIRED DATA BY USER
-def set_required_data():
+def set_year_file_name():
     bad_year = True
     while(bad_year):
         year = input('Introduce the year of search: ')
@@ -32,7 +32,7 @@ def set_required_data():
     return year, file_name
 
 # GO TO INSTAGRAM MAIN PAGE
-def go_to_instagram(driver):
+def go_to_instagram(driver:webdriver.Chrome):
     # ENTER TO INSTAGRAM WEB
     driver.get(WEB)
     time.sleep(WAIT_TIME_3)
@@ -40,7 +40,7 @@ def go_to_instagram(driver):
     time.sleep(WAIT_TIME_3)
 
 # LOGIN WITH USER AND PASSWORD
-def instagram_login(driver):
+def instagram_login(driver:webdriver.Chrome):
     is_error = True
     while(is_error):
         user = input('Introduce your Instagram user: ')
@@ -66,7 +66,7 @@ def instagram_login(driver):
             is_error = False
 
 # DENY SAVE DATA AND PUSH NOTIFICATIONS
-def deny_save_data_push_notifications(driver):
+def deny_save_data_push_notifications(driver:webdriver.Chrome):
     time.sleep(WAIT_TIME_5)
     try:
         driver.find_element(By.XPATH, '//button[contains(text(), "Ahora no")]').click()
@@ -80,7 +80,7 @@ def deny_save_data_push_notifications(driver):
         pass
 
 # SCRAPP ALL THE INFORMATION NEEDED FROM PROFILES IN EXCEL
-def scrapp_profiles_excel(driver, year):
+def scrapp_profiles_excel(driver:webdriver.Chrome, year:str):
     # ENTERS THE EXCEL WITH THE ACCOUNTS' INFO
     data = pd.read_excel('instagram.xlsx')
     results = []
@@ -116,28 +116,6 @@ def scrapp_profiles_excel(driver, year):
                 if first_time:
                     images = images[:-2] # Slicing-off IG logo and profile picture
                     first_time = False
-                print(len(images)) #ELIMINAR
-            print(images) #ELIMINAR
-            
-            """ while len(images) < total_posts:
-                # SCROLL TO THE BOTTOM
-                driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-                time.sleep(WAIT_TIME_1)
-                
-                # SELECT THUMBNAILS
-                found_image_tags = driver.find_elements(By.CSS_SELECTOR, 'div._aabd')
-                for image_tag in found_image_tags:
-                    if image_tag.find_element(By.CSS_SELECTOR, 'a div._aagu div._aagv img'):
-                        image = image_tag.find_element(By.CSS_SELECTOR, 'a div._aagu div._aagv img')
-                        if image.get_attribute('src') not in images:
-                            images.append(image.get_attribute('src'))
-                        if first_time:
-                            images = images[:-2] # Slicing-off IG logo and profile picture
-                            first_time = False
-                    else:
-                        images.append(SENSITIVE_CONTENT_IMAGE)
-                print(len(images))
-            print(images) """
             
             # SCROLL BACK TO THE TOP OF THE PAGE
             driver.execute_script("window.scrollTo(0, 0);")
@@ -233,7 +211,7 @@ def url_html_formatter(path):
     return tag_photo
 
 def main():
-    year, file_name = set_required_data()
+    year, file_name = set_year_file_name()
     
     # CONSTRUCTION OF THE SCRAPPER
     CHROMEDRIVER_PATH = '/chromedriver'
