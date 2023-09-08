@@ -18,17 +18,17 @@ DIR_BASE = os.getcwd()
 DOWNLOAD_FOLDER = DIR_BASE + '/images/downloaded/'
 SENSITIVE_CONTENT_IMAGE = "images/sensitive_content.png"
 
-# DOWNLOAD THE THUMBNAIL FROM THE POST
+# FORMAT TO HTML THE DOWNLOADED THUMBNAILS
 def image_html_formatter(path):
     tag_photo = '<img src="' + path + '" width=500px />'
     return tag_photo
 
-# FORMAT TO HTML TAG THE DOWNLOADED THUMBNAIL FROM THE POST
+# FORMAT TO HTML THE URLS OF THE POSTS
 def url_html_formatter(path):
     tag_photo = '<a href="'+ path +'" target="_blank">ENLACE</a>'
     return tag_photo
 
-# DATA REQUIRED BY USER
+# REQUIRED DATA BY USER
 bad_year = True
 while(bad_year):
     year = input('Introduce the year of search: ')
@@ -121,13 +121,13 @@ for url in data['Link'].tolist():
             # SELECT THUMBNAILS
             found_images = driver.find_elements(By.CSS_SELECTOR, 'div._aagu div._aagv img')
             for image in found_images:
-                if image.get_attribute('src') not in found_images:
+                if image.get_attribute('src') not in images:
                     images.append(image.get_attribute('src'))
             if first_time:
                 images = images[:-2] # Slicing-off IG logo and profile picture
                 first_time = False
-            print(len(images))
-        print(images)
+            print(len(images)) #ELIMINAR
+        print(images) #ELIMINAR
         
         """ while len(images) < total_posts:
             # SCROLL TO THE BOTTOM
