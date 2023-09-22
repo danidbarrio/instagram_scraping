@@ -14,7 +14,7 @@ WAIT_TIME_1 = 1
 WAIT_TIME_3 = 3
 WAIT_TIME_5 = 5
 DIR_BASE = os.getcwd()
-DOWNLOAD_FOLDER = DIR_BASE + '/images/downloaded/'
+DOWNLOAD_FOLDER = DIR_BASE + '/images/downloaded'
 SENSITIVE_CONTENT_IMAGE = "images/sensitive_content.png"
 
 # REQUIRED DATA BY USER
@@ -76,8 +76,20 @@ def deny_save_data_push_notifications(driver:webdriver.Chrome):
     except:
         pass
 
+# CREATE DOWNLOAD FOLDER FOR DOWNLOADED THUMBNAILS IN EVERY RUN
+def create_sequential_folder():
+    folder_counter = 2
+    folder_name = DOWNLOAD_FOLDER
+
+    while os.path.exists(folder_name):
+        folder_name = DOWNLOAD_FOLDER + str(folder_counter)
+        folder_counter += 1
+
+    os.mkdir(folder_name)
+    return folder_name
+
 # SCRAPP ALL THE INFORMATION NEEDED FROM PROFILES IN EXCEL
-def scrapp_profiles_excel(driver:webdriver.Chrome, year:str):
+def scrapp_profiles_excel(driver:webdriver.Chrome, year:str, download_folder:str):
     # ENTERS THE EXCEL WITH THE ACCOUNTS' INFO
     data = pd.read_excel('instagram.xlsx')
     results = []
@@ -99,8 +111,9 @@ def scrapp_profiles_excel(driver:webdriver.Chrome, year:str):
                     
             # GET ALL THE TUMBNAILS FROM THE PROFILE SCROLLING TO THE END OF THE PAGE
             images = []
-            first_time  = True
-            while len(images) < total_posts:
+            censored_images = []
+            first_time  = True    
+            while (len(images) + len(censored_images)) < total_posts:
                 # SCROLL TO THE BOTTOM
                 driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
                 time.sleep(WAIT_TIME_1)
@@ -113,6 +126,12 @@ def scrapp_profiles_excel(driver:webdriver.Chrome, year:str):
                 if first_time:
                     images = images[:-2] # Slicing-off IG logo and profile picture
                     first_time = False
+                
+                # CHECK IF THERE ARE SENSITIVE IMAGES
+                found_censored_images = driver.find_elements(By.CSS_SELECTOR, 'a div._abqu div._abqn')
+                for censored_image in found_censored_images:
+                    if censored_image not in censored_images:
+                        censored_images.append(censored_image)
             
             # SCROLL BACK TO THE TOP OF THE PAGE
             driver.execute_script("window.scrollTo(0, 0);")
@@ -120,6 +139,7 @@ def scrapp_profiles_excel(driver:webdriver.Chrome, year:str):
 
             # ACCESS TO THE FIRST POST AND GET ITS POSTING DATE
             posts_counter = 0
+            censored_images_counter = 0
             scrapped_posts = 0
             driver.find_element(By.CLASS_NAME, '_aagu').click()
             time.sleep(WAIT_TIME_1)
@@ -143,15 +163,19 @@ def scrapp_profiles_excel(driver:webdriver.Chrome, year:str):
                         description = ''
                         pass
                     
-                    photo_url = images[posts_counter]
+                    # GET THUMBNAIL OF THE POST
+                    try:
+                        if driver.find_element(By.CSS_SELECTOR, 'h2._abqr').text == 'Contenido sensible':
+                            photo_url = SENSITIVE_CONTENT_IMAGE
+                            censored_images_counter += 1
+                    except:
+                        photo_url = images[posts_counter - censored_images_counter]
+                        pass
                     
                     #DOWNLOAD THE THUMBNAIL FROM THE URL
-                    if not os.path.exists(DOWNLOAD_FOLDER):
-                        os.mkdir(DOWNLOAD_FOLDER)
-                    
                     if "http" in photo_url:
                         response = requests.get(photo_url, stream = True)
-                        image_path = DOWNLOAD_FOLDER + 'image' + str(image_counter) + '.jpg'
+                        image_path = download_folder + '/image' + str(image_counter) + '.jpg'
 
                         if response.status_code == 200:
                             with open(image_path,'wb') as image:
@@ -205,8 +229,10 @@ def url_html_formatter(path):
     tag_photo = '<a href="'+ path +'" target="_blank">ENLACE</a>'
     return tag_photo
 
-def __main():
+def __main__():
     year, file_name = set_year_file_name()
+    
+    download_folder = create_sequential_folder()
     
     # CONSTRUCTION OF THE SCRAPPER
     CHROMEDRIVER_PATH = '/chromedriver'
@@ -221,7 +247,7 @@ def __main():
     
     deny_save_data_push_notifications(DRIVER)
     
-    results = scrapp_profiles_excel(DRIVER, year)
+    results = scrapp_profiles_excel(DRIVER, year, download_folder)
     
     # QUIT DRIVER
     DRIVER.quit()
@@ -239,4 +265,4 @@ def __main():
 
     html_file.write(html_template)
 
-__main()
+__main__()
