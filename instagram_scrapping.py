@@ -7,7 +7,7 @@ from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support.wait import WebDriverWait
 
 # REQUIRED CONSTS DATA
 WEB = 'https://www.instagram.com'
@@ -30,6 +30,7 @@ def url_html_formatter(path):
 
 # REQUIRED DATA BY USER
 bad_year = True
+year = ''
 while(bad_year):
     year = input('Introduce the year of search: ')
     if year.isnumeric():
@@ -65,14 +66,13 @@ while(is_error):
     pasw.send_keys(Keys.RETURN)
 
     # CHECK IF LOG IN WENT WRONG TO REFRESH AND RETRY
-    time.sleep(WAIT_TIME_1)
+    time.sleep(WAIT_TIME_3)
     try:
         driver.find_element(By.CSS_SELECTOR, 'div._ab2z')
         print('ERROR - Wrong credentials. Try again.')
         driver.refresh()
         time.sleep(WAIT_TIME_1)
     except:
-        print("BIEN") #ELIMINAR
         is_error = False
         pass
 
@@ -102,129 +102,125 @@ for url in data['Link'].tolist():
     driver.get(url)
     time.sleep(WAIT_TIME_3)
     
-    try:
-        profile_counter += 1
-        # GET THE NUMBER OF TOTAL POSTS FROM THE PROFILE
-        total_posts = int(driver.find_element(By.CSS_SELECTOR, 'span._ac2a span').text)
-        print("Total posts from " + profile + ":", total_posts)
-                
-        # GET ALL THE TUMBNAILS FROM THE PROFILE SCROLLING TO THE END OF THE PAGE
-        images = []
-        first_time  = True
-        """ while len(images) < total_posts:
-            # SCROLL TO THE BOTTOM
-            driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-            time.sleep(WAIT_TIME_1)
+    #try:
+    profile_counter += 1
+    # GET THE NUMBER OF TOTAL POSTS FROM THE PROFILE
+    total_posts = int(driver.find_element(By.CSS_SELECTOR, 'span._ac2a span').text)
+    print("Total posts from " + profile + ":", total_posts)
             
-            # SELECT THUMBNAILS
-            found_images = driver.find_elements(By.CSS_SELECTOR, 'div._aagu div._aagv img')
-            for image in found_images:
-                if image.get_attribute('src') not in images:
-                    images.append(image.get_attribute('src'))
-            if first_time:
-                images = images[:-2] # Slicing-off IG logo and profile picture
-                first_time = False
-            print(len(images)) #ELIMINAR
-        print(images) #ELIMINAR """
-        
-        while len(images) < total_posts:
-            # SCROLL TO THE BOTTOM
-            driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-            time.sleep(WAIT_TIME_1)
-            
-            # SELECT THUMBNAILS
-            found_image_tags = driver.find_elements(By.CSS_SELECTOR, 'div._aabd')
-            for image_tag in found_image_tags:
-                if image_tag.find_element(By.CSS_SELECTOR, 'a div._aagu div._aagv img'):
-                    image = image_tag.find_element(By.CSS_SELECTOR, 'a div._aagu div._aagv img')
-                    if image.get_attribute('src') not in images:
-                        image.click()
-                        images.append(image.get_attribute('src'))
-                    if first_time:
-                        images = images[:-2] # Slicing-off IG logo and profile picture
-                        first_time = False
-                else:
-                    images.append(SENSITIVE_CONTENT_IMAGE)
-            print(len(images)) #ELIMINAR
-        print(images) #ELIMINAR
-        
-        # SCROLL BACK TO THE TOP OF THE PAGE
-        driver.execute_script("window.scrollTo(0, 0);")
+    # GET ALL THE TUMBNAILS FROM THE PROFILE SCROLLING TO THE END OF THE PAGE
+    images = []
+    first_time  = True    
+    while len(images) < total_posts:
+        # SCROLL TO THE BOTTOM
+        driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
         time.sleep(WAIT_TIME_1)
-
-        # ACCESS TO THE FIRST POST AND GET ITS POSTING DATE
-        posts_counter = 0
-        scrapped_posts = 0
-        driver.find_element(By.CLASS_NAME, '_aagu').click()
-        time.sleep(WAIT_TIME_1)
-        date = driver.find_element(By.TAG_NAME, 'time').get_attribute('datetime')
         
-        # CHECK PINED POSTS AND GET THE ONES FROM THE YEAR THE USER WANTS
-        while(date[0:4] >= year or posts_counter < 3):
-
-            # CHECK IF THE POST IS FROM THE YEAR THE USER WANTS
-            if(date[0:4] == year):
-                scrapped_posts += 1
-                time.sleep(WAIT_TIME_1)
-                
-                # GET FORMATED DATE OF THE POST
-                formated_date = date[0:10]
-                
-                # GET DESCRIPTION OF THE POST
-                try:
-                    descriptions = driver.find_elements(By.TAG_NAME, 'h1')
-                    del descriptions[0]
-                    description = descriptions[0].text
-                except:
-                    description = ''
-                    pass
-                
-                photo_url = images[posts_counter]
-                
-                #DOWNLOAD THE THUMBNAIL FROM THE URL
-                if not os.path.exists(DOWNLOAD_FOLDER):
-                    os.mkdir(DOWNLOAD_FOLDER)
-                
-                if "http" in photo_url:
-                    response = requests.get(photo_url, stream = True)
-                    image_path = DOWNLOAD_FOLDER + 'image' + str(image_counter) + '.jpg'
-
-                    if response.status_code == 200:
-                        with open(image_path,'wb') as image:
-                            image.write(response.content)
-                            image.close()
-                    else:
-                        print("Image " + image_path + " couldn't be retrieved.")
-                else:
-                    image_path = photo_url
-                
-                # GET URL OF THE POST
-                url_post = driver.current_url
-                
-                # ADD DATA TO ARRAY
-                results.append([profile, formated_date, description, url_post, image_path])
-                image_counter += 1
-            
-            # PRESS BUTTON TO GO TO THE NEXT POST
-            buttons = driver.find_elements(By.TAG_NAME, 'svg')
+        # SELECT THUMBNAILS
+        found_image_tags = driver.find_elements(By.CSS_SELECTOR, 'div._aabd._aa8k._al3l')
+        for image_tag in found_image_tags:
             try:
-                for button in buttons:
-                    if button.get_attribute('aria-label') == 'Siguiente':
-                        button.click()
+                image = image_tag.find_element(By.CSS_SELECTOR, 'a div._aagu div._aagv img')
+                if image.get_attribute('src') not in images:
+                    #image.click() 
+                    images.append(image.get_attribute('src'))
+                if first_time:
+                    images = images[:-2] # Slicing-off IG logo and profile picture
+                    first_time = False
+            except Exception as e:
+                """ if (image_tag.find_element(By.CSS_SELECTOR, 'a div._abqu div._abqn')):
+                    images.append(SENSITIVE_CONTENT_IMAGE)
+                else:
+                    print(e)
+                pass """
+                print(e)
+                print('-'*50)
+                images.append(SENSITIVE_CONTENT_IMAGE)
+                pass
+
+    # MOVE BACK TO THE FIRST POSITION THE FIRST THUMBNAIL
+    if len(images) >= 24:
+        images.insert(0, images[23])
+        images.pop(24)
+    else:
+        images.insert(0, images[-1])
+        images.pop(-1)
+    
+    # SCROLL BACK TO THE TOP OF THE PAGE
+    driver.execute_script("window.scrollTo(0, 0);")
+    time.sleep(WAIT_TIME_1)
+
+    # ACCESS TO THE FIRST POST AND GET ITS POSTING DATE
+    posts_counter = 0
+    scrapped_posts = 0
+    driver.find_element(By.CLASS_NAME, '_aagu').click()
+    time.sleep(WAIT_TIME_1)
+    date = driver.find_element(By.TAG_NAME, 'time').get_attribute('datetime')
+    
+    # CHECK PINED POSTS AND GET THE ONES FROM THE YEAR THE USER WANTS
+    while(date[0:4] >= year or posts_counter < 3):
+
+        # CHECK IF THE POST IS FROM THE YEAR THE USER WANTS
+        if(date[0:4] == year):
+            scrapped_posts += 1
+            time.sleep(WAIT_TIME_1)
+            
+            # GET FORMATED DATE OF THE POST
+            formated_date = date[0:10]
+            
+            # GET DESCRIPTION OF THE POST
+            try:
+                description = driver.find_elements(By.TAG_NAME, 'h1')[1].text
             except:
+                description = ''
                 pass
             
-            # CHECK IF ALL THE POSTS ARE SCRAPPED
-            posts_counter += 1
-            if posts_counter == total_posts:
-                break
-            else:
-                # GET DATE OF THE NEXT POST TO CHECK IF THE PROCCESS CONTINUES
-                date = driver.find_element(By.TAG_NAME, 'time').get_attribute('datetime')
+            photo_url = images[posts_counter]
+            
+            #DOWNLOAD THE THUMBNAIL FROM THE URL
+            if not os.path.exists(DOWNLOAD_FOLDER):
+                os.mkdir(DOWNLOAD_FOLDER)
+            
+            if "http" in photo_url:
+                response = requests.get(photo_url, stream = True)
+                image_path = DOWNLOAD_FOLDER + 'image' + str(image_counter) + '.jpg'
 
-        print(scrapped_posts, 'posts scrapped from ' + profile)
-    except:
-        print(profile + " doesn't exists.")
+                if response.status_code == 200:
+                    with open(image_path,'wb') as image:
+                        image.write(response.content)
+                        image.close()
+                else:
+                    print("Image " + image_path + " couldn't be retrieved.")
+            else:
+                image_path = photo_url
+            
+            # GET URL OF THE POST
+            url_post = driver.current_url
+            
+            # ADD DATA TO ARRAY
+            results.append([profile, formated_date, description, url_post, image_path])
+            image_counter += 1
+        
+        # PRESS BUTTON TO GO TO THE NEXT POST
+        buttons = driver.find_elements(By.TAG_NAME, 'svg')
+        try:
+            for button in buttons:
+                if button.get_attribute('aria-label') == 'Siguiente':
+                    button.click()
+        except:
+            pass
+        
+        # CHECK IF ALL THE POSTS ARE SCRAPPED
+        posts_counter += 1
+        if posts_counter == total_posts:
+            break
+        else:
+            # GET DATE OF THE NEXT POST TO CHECK IF THE PROCCESS CONTINUES
+            date = driver.find_element(By.TAG_NAME, 'time').get_attribute('datetime')
+
+    print(scrapped_posts, 'posts scrapped from ' + profile)
+    """ except:
+        print(profile + " doesn't exists.") """
 
 #SHOW TOTAL OF SCRAPPED PROFILES
 print(profile_counter, 'profiles scrapped.')

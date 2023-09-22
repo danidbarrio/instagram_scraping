@@ -20,6 +20,7 @@ SENSITIVE_CONTENT_IMAGE = "images/sensitive_content.png"
 # REQUIRED DATA BY USER
 def set_year_file_name():
     bad_year = True
+    year = ''
     while(bad_year):
         year = input('Introduce the year of search: ')
         if year.isnumeric():
@@ -33,7 +34,6 @@ def set_year_file_name():
 
 # GO TO INSTAGRAM MAIN PAGE
 def go_to_instagram(driver:webdriver.Chrome):
-    # ENTER TO INSTAGRAM WEB
     driver.get(WEB)
     time.sleep(WAIT_TIME_3)
     driver.find_element(By.XPATH, '//button[contains(text(), "Permitir")]').click()
@@ -52,14 +52,13 @@ def instagram_login(driver:webdriver.Chrome):
         pasw.send_keys(Keys.RETURN)
 
         # CHECK IF LOG IN WENT WRONG TO REFRESH AND RETRY
-        time.sleep(WAIT_TIME_1)
+        time.sleep(WAIT_TIME_3)
         try:
             driver.find_element(By.CSS_SELECTOR, 'div._ab2z')
             print('ERROR - Wrong credentials. Try again.')
             driver.refresh()
             time.sleep(WAIT_TIME_1)
         except:
-            print("BIEN") #ELIMINAR
             is_error = False
             pass
 
@@ -139,9 +138,7 @@ def scrapp_profiles_excel(driver:webdriver.Chrome, year:str):
                     
                     # GET DESCRIPTION OF THE POST
                     try:
-                        descriptions = driver.find_elements(By.TAG_NAME, 'h1')
-                        del descriptions[0]
-                        description = descriptions[0].text
+                        description = driver.find_elements(By.TAG_NAME, 'h1')[1].text
                     except:
                         description = ''
                         pass
@@ -208,7 +205,7 @@ def url_html_formatter(path):
     tag_photo = '<a href="'+ path +'" target="_blank">ENLACE</a>'
     return tag_photo
 
-def main():
+def __main():
     year, file_name = set_year_file_name()
     
     # CONSTRUCTION OF THE SCRAPPER
@@ -242,4 +239,4 @@ def main():
 
     html_file.write(html_template)
 
-main()
+__main()
