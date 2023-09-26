@@ -1,6 +1,7 @@
 import time
 import pandas as pd
 import os
+import subprocess
 import requests
 import getpass
 from selenium import webdriver
@@ -11,11 +12,13 @@ from selenium.webdriver.chrome.service import Service
 # REQUIRED CONSTS DATA
 WEB = 'https://www.instagram.com'
 WAIT_TIME_1 = 1
+WAIT_TIME_2 = 2
 WAIT_TIME_3 = 3
 WAIT_TIME_5 = 5
 DIR_BASE = os.getcwd()
 DOWNLOAD_FOLDER = DIR_BASE + '/images/downloaded'
 SENSITIVE_CONTENT_IMAGE = "images/sensitive_content.png"
+CHROME_INSTALLER_FILE = "google-chrome-114-0-5735-199.exe"
 
 # REQUIRED DATA BY USER
 def set_year_file_name():
@@ -88,8 +91,8 @@ def create_sequential_folder():
     os.mkdir(folder_name)
     return folder_name
 
-# SCRAPP ALL THE INFORMATION NEEDED FROM PROFILES IN EXCEL
-def scrapp_profiles_excel(driver:webdriver.Chrome, year:str, download_folder:str):
+# SCRAP ALL THE INFORMATION NEEDED FROM PROFILES IN EXCEL
+def scrap_profiles_excel(driver:webdriver.Chrome, year:str, download_folder:str):
     # ENTERS THE EXCEL WITH THE ACCOUNTS' INFO
     data = pd.read_excel('instagram.xlsx')
     results = []
@@ -112,11 +115,20 @@ def scrapp_profiles_excel(driver:webdriver.Chrome, year:str, download_folder:str
             # GET ALL THE TUMBNAILS FROM THE PROFILE SCROLLING TO THE END OF THE PAGE
             images = []
             censored_images = []
-            first_time  = True    
-            while (len(images) + len(censored_images)) < total_posts:
+            first_time  = True
+            scroll_at_bottom = False
+            while (len(images) + len(censored_images)) < total_posts and not scroll_at_bottom:
                 # SCROLL TO THE BOTTOM
                 driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-                time.sleep(WAIT_TIME_1)
+                time.sleep(WAIT_TIME_2)
+                
+                # CHECK IF THE SCROLL BAR REACHED THE BOTTOM OF THE PAGE
+                scroll_position = driver.execute_script("return window.pageYOffset;")
+                total_height = driver.execute_script("return document.body.scrollHeight;")
+                visible_height = driver.execute_script("return window.innerHeight;")
+                
+                if scroll_position + visible_height == total_height:
+                    scroll_at_bottom = True
                 
                 # SELECT THUMBNAILS
                 found_images = driver.find_elements(By.CSS_SELECTOR, 'div._aagu div._aagv img')
@@ -140,7 +152,7 @@ def scrapp_profiles_excel(driver:webdriver.Chrome, year:str, download_folder:str
             # ACCESS TO THE FIRST POST AND GET ITS POSTING DATE
             posts_counter = 0
             censored_images_counter = 0
-            scrapped_posts = 0
+            scraped_posts = 0
             driver.find_element(By.CLASS_NAME, '_aagu').click()
             time.sleep(WAIT_TIME_1)
             date = driver.find_element(By.TAG_NAME, 'time').get_attribute('datetime')
@@ -150,7 +162,7 @@ def scrapp_profiles_excel(driver:webdriver.Chrome, year:str, download_folder:str
 
                 # CHECK IF THE POST IS FROM THE YEAR THE USER WANTS
                 if(date[0:4] == year):
-                    scrapped_posts += 1
+                    scraped_posts += 1
                     time.sleep(WAIT_TIME_1)
                     
                     # GET FORMATED DATE OF THE POST
@@ -202,7 +214,7 @@ def scrapp_profiles_excel(driver:webdriver.Chrome, year:str, download_folder:str
                 except:
                     pass
                 
-                # CHECK IF ALL THE POSTS ARE SCRAPPED
+                # CHECK IF ALL THE POSTS ARE SCRAPED
                 posts_counter += 1
                 if posts_counter == total_posts:
                     break
@@ -210,12 +222,12 @@ def scrapp_profiles_excel(driver:webdriver.Chrome, year:str, download_folder:str
                     # GET DATE OF THE NEXT POST TO CHECK IF THE PROCCESS CONTINUES
                     date = driver.find_element(By.TAG_NAME, 'time').get_attribute('datetime')
 
-            print(scrapped_posts, 'posts scrapped from ' + profile)
+            print(scraped_posts, 'posts scraped from ' + profile)
         except:
             print(profile + " doesn't exists.")
 
-    #SHOW TOTAL OF SCRAPPED PROFILES
-    print(profile_counter, 'profiles scrapped.')
+    #SHOW TOTAL OF SCRAPED PROFILES
+    print(profile_counter, 'profiles scraped.')
     
     return results
 
@@ -229,12 +241,12 @@ def url_html_formatter(path):
     tag_photo = '<a href="'+ path +'" target="_blank">ENLACE</a>'
     return tag_photo
 
-def __main__():
+if __name__ == "__main__":
     year, file_name = set_year_file_name()
     
     download_folder = create_sequential_folder()
     
-    # CONSTRUCTION OF THE SCRAPPER
+    # CONSTRUCTION OF THE SCRAPER
     CHROMEDRIVER_PATH = '/chromedriver'
     OPTIONS = webdriver.ChromeOptions()
     OPTIONS.add_experimental_option('excludeSwitches', ['enable-logging'])
@@ -247,7 +259,7 @@ def __main__():
     
     deny_save_data_push_notifications(DRIVER)
     
-    results = scrapp_profiles_excel(DRIVER, year, download_folder)
+    results = scrap_profiles_excel(DRIVER, year, download_folder)
     
     # QUIT DRIVER
     DRIVER.quit()
@@ -264,5 +276,3 @@ def __main__():
     html_file = open(file_name + '.html', 'w', encoding="utf-8")
 
     html_file.write(html_template)
-
-__main__()

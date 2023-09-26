@@ -40,7 +40,7 @@ while(bad_year):
 
 file_name = input('Introduce a name for the file to save the data: ')
 
-# CONSTRUCTION OF THE SCRAPPER
+# CONSTRUCTION OF THE SCRAPER
 chromedriver_path = '/chromedriver'
 options = webdriver.ChromeOptions()
 options.add_experimental_option('excludeSwitches', ['enable-logging'])
@@ -98,7 +98,7 @@ while os.path.exists(folder_name):
     folder_counter += 1
 
 # ENTERS THE EXCEL WITH THE ACCOUNTS' INFO
-data = pd.read_excel('instagram.xlsx')
+data = pd.read_excel('instagram_test.xlsx')
 results = []
 image_counter = 1
 profile_counter = 0
@@ -119,11 +119,27 @@ for url in data['Link'].tolist():
     # GET ALL THE TUMBNAILS FROM THE PROFILE SCROLLING TO THE END OF THE PAGE
     images = []
     censored_images = []
-    first_time  = True    
-    while (len(images) + len(censored_images)) < total_posts:
+    first_time  = True
+    scroll_position = 0
+    visible_height = 0
+    total_height = driver.execute_script("return document.body.scrollHeight;")
+    scroll_at_bottom = False
+    while (len(images) + len(censored_images)) < total_posts and scroll_position + visible_height != total_height:
         # SCROLL TO THE BOTTOM
         driver.execute_script("window.scrollTo(0, document.body.scrollHeight);")
-        time.sleep(WAIT_TIME_1)
+        time.sleep(WAIT_TIME_3)
+        
+        # CHECK IF THE SCROLL BAR REACHED THE BOTTOM OF THE PAGE
+        scroll_position = driver.execute_script("return window.pageYOffset;")
+        total_height = driver.execute_script("return document.body.scrollHeight;")
+        visible_height = driver.execute_script("return window.innerHeight;")
+        
+        if scroll_position == 0:
+            print("Estás en la parte superior de la página.")
+        elif scroll_position + visible_height == total_height:
+            print("Estás en la parte inferior de la página.")
+        else:
+            print("Estás en algún punto intermedio de la página.")
         
         # SELECT THUMBNAILS
         found_images = driver.find_elements(By.CSS_SELECTOR, 'div._aagu div._aagv img')
@@ -152,7 +168,7 @@ for url in data['Link'].tolist():
     # ACCESS TO THE FIRST POST AND GET ITS POSTING DATE
     posts_counter = 0
     censored_images_counter = 0
-    scrapped_posts = 0
+    scraped_posts = 0
     driver.find_element(By.CLASS_NAME, '_aagu').click()
     time.sleep(WAIT_TIME_1)
     date = driver.find_element(By.TAG_NAME, 'time').get_attribute('datetime')
@@ -162,7 +178,7 @@ for url in data['Link'].tolist():
 
         # CHECK IF THE POST IS FROM THE YEAR THE USER WANTS
         if(date[0:4] == year):
-            scrapped_posts += 1
+            scraped_posts += 1
             time.sleep(WAIT_TIME_1)
             
             # GET FORMATED DATE OF THE POST
@@ -184,6 +200,13 @@ for url in data['Link'].tolist():
                 pass
             
             #DOWNLOAD THE THUMBNAIL FROM THE URL
+            folder_counter = 2
+            folder_name = DOWNLOAD_FOLDER
+
+            while os.path.exists(folder_name):
+                folder_name = DOWNLOAD_FOLDER + str(folder_counter)
+                folder_counter += 1
+
             os.mkdir(folder_name)
             
             if "http" in photo_url:
@@ -215,7 +238,7 @@ for url in data['Link'].tolist():
         except:
             pass
         
-        # CHECK IF ALL THE POSTS ARE SCRAPPED
+        # CHECK IF ALL THE POSTS ARE SCRAPED
         posts_counter += 1
         if posts_counter == total_posts:
             break
@@ -223,12 +246,12 @@ for url in data['Link'].tolist():
             # GET DATE OF THE NEXT POST TO CHECK IF THE PROCCESS CONTINUES
             date = driver.find_element(By.TAG_NAME, 'time').get_attribute('datetime')
 
-    print(scrapped_posts, 'posts scrapped from ' + profile)
+    print(scraped_posts, 'posts scraped from ' + profile)
     """ except:
         print(profile + " doesn't exists.") """
 
-#SHOW TOTAL OF SCRAPPED PROFILES
-print(profile_counter, 'profiles scrapped.')
+#SHOW TOTAL OF SCRAPED PROFILES
+print(profile_counter, 'profiles scraped.')
 
 # QUIT DRIVER
 driver.quit()
