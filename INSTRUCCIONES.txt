@@ -1,0 +1,14 @@
+---CÓMO USAR INSTAGRAM SCRAPING DESDE EXCEL CON INSTAGRAM_SCRAPING_PRO---
+
+1. Accede al panel de control y en el apartado de "Desinstalar Programas" comprueba que la versión instalada de Google Chrome es la 114 o menor
+1.1. En caso de ser mayor, desinstalalo e instala el archivo "google-chrome-114-0-5735-199.exe" que tienes en esta carpeta.
+
+2. Para ejecutar el programa deberás acceder a la carpeta "dist" y ejecutar "instagram_scraping_pro.exe".
+2.1. En caso de que te salte una alerta de seguridad, selecciona el apartado de "más información" y pulsa el botón "Ejecutar de todos modos".
+
+3. Una vez dentro, sigue los pasos que se te indiquen en la consola. Ten encuenta los siguientes puntos!!!!
+3.1. Cuando introduzcas la contraseña, esta no se mostrará, ni tampoco se mostraran los típicos puntitos que la censuran, la consola no mostrará nada, pero tu estarás escribiendo, asi que ves con cuidado o tendrás que repetir el inicio de sesión.
+3.2. No minimices ni toques nada de la ventana de Google Chrome que abra el programa, ya que esto alterará los pasos que tiene programados y probocará que falle.
+3.3. No cierres la consola del programa una vez comience el scraping, ya que esta cierra el programa entero, no sigue en segundo plano o lo mantiene en la ventana de Chrome. Sin embargo, sí la podrás minimizar (no lo recomiendo, porque te irá mostrando información acerca de los perfiles revisados).
+
+4. Una vez acabado, la tabla se generará en un archivo .html fuera de la carpeta "dist". Este archivo no lo podrás mover de ahí, ya que perdería las rutas relativas de las imágenes que se deben mostrar en la tabla. También puede que tarde unos segundos en mostrarse correctamente, ya que debe leer muchas imagenes.
